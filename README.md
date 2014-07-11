@@ -67,7 +67,7 @@ The tool will raise exception when a configuration file is missing. The tool nee
   
 ###### add key
 
-Please visit your settings page on VersionEye for api-key and then use command `veye change_key` to save your api key.
+Please visit [your settings page](https://www.versioneye.com/settings/api) on VersionEye for the api-key and then use command `veye change_key` to save your api key.
 
 ```
  $> veye change_key abj23j2bj33k14
@@ -194,6 +194,22 @@ For example to override a number of port, when doing search:
   $> veye --port=4567 search json --lang=php,nodejs
 ```
 
+###### Timeouts
+
+The best place to manage timeouts for a single run is to use commandline flags.  
+
+```
+ $> veye --timeout=100 --open_timeout=10 ping
+```
+
+**NB!** unit of timeout is a second and it's doesnt accepts milliseconds. Therefore smallest timeout is 1second and you can use -1 as infinite timeout.
+
+If you want to change timeout settings permanently, then you shall change timeout values in your `.veye.rc` file. 
+
+###### Updating options file
+
+There may be a situation when you need to update/re-write saved config file. Then you you can use `veye initconfig --force` command to re-write already existing configuration file.
+
 ### Package information
 
 Ok, thats most trickiest part of our tool. You need to prepend a language of package just before product's key. For example, if you have Java package with product key junit/junit, then you have to encode this value as: `java/junit/junit`.
@@ -295,11 +311,77 @@ This command removes the specified project from your project's list.
 	$> veye me
 ``` 
 
-####### Favorite packages
+###### Favorite packages
 
-`me` command has a `favorite` command, which returns all packages you're currently following.
+`me` command has a `favorite` subcommand, which returns all packages you're currently following.
 
 ```
  $> veye me favorites
  $> veye me favorites --page=2 --format=table
+```
+
+### Github
+
+`Github` command includes subcommands to manage your Github repositories on VersionEye.
+
+All subcommands expect that you had already connected your Github with your VersionEye account. Otherwise you'll get plain exception message.
+
+##### Sync
+
+Updates your Github data - this api's resource tries to be lazy: it pulls updates only if there's no cached repositories or Github shows there's any changes on your repositories. But you can use `--force` switch to re-import all data regardless there's any changes on your repositories. Beware this command can takes time.
+
+```
+ $> veye github sync
+ $> veye github sync --force
+```
+
+###### List
+
+`list` commands shows paginated view of your repositories.
+
+```
+ $> veye github list --format=table
+```
+
+###### Info
+
+This command shows more detailed information.
+
+```
+ $> veye github info versioneye/veye
+ $> veye github info versioneye/veye --format=table
+```
+
+###### Import
+
+`import` command takes fullname of repository and tries to import project file from that repository.  Fullname have to include the owner and the name of repository.
+
+By default, it tries to read project file on master branch; you can use a `--branch` flag to specify the name of branch. 
+
+This command gives exception when you are trying to import already imported repository.
+
+
+```
+ $> veye github import versioneye/veye
+ $> veye github import versioneye/veye --branch=dev
+```
+
+
+###### Delete
+
+It removes imported project.
+
+```
+ $> veye github delete versioneye/veye
+ $> veye github delete versioneye/veye --branch=dev
+```
+
+###### Search 
+
+This command makes authorized request to the Github search api for  repositories. As authorized user, you can make up to *5000* request per hour. 
+
+```
+ $> veye github search versioneye 
+ $> veye github search json --language=php --page=2 ;; filter results by language
+ $> veye github search veye --user versioneye       ;; filter results by users
 ```
